@@ -5,24 +5,29 @@ import reportWebVitals from './reportWebVitals';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { CashoutScreen } from './screens/cashout';
 import { HomeScreen } from './screens/home';
+import { ProtectedRoute } from './auth/protected-route';
+import { AuthProvider } from './auth/auth-provider';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement,
 );
+
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <HomeScreen />,
+    element: <ProtectedRoute screen={<HomeScreen />} />,
   },
   {
     path: '/cashout',
-    element: <CashoutScreen />,
+    element: <ProtectedRoute screen={<CashoutScreen />} />,
   },
 ]);
 
 root.render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
   </React.StrictMode>,
 );
 

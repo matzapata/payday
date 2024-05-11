@@ -1,3 +1,4 @@
+import { useAuth } from '@/auth/use-auth';
 import { BrandLogo } from '@/components/brand/logo';
 import { Button } from '@/components/ui/button';
 import {
@@ -56,6 +57,8 @@ const invoices = [
 ];
 
 export function HomeScreen() {
+  const { logout } = useAuth();
+
   return (
     <div>
       {/* Header. Balance and cashout button */}
@@ -63,7 +66,9 @@ export function HomeScreen() {
         <div className="max-w-3xl mx-auto">
           <div className="justify-between py-4 flex items-center">
             <BrandLogo />
-            <Button variant={'link'}>Logout</Button>
+            <Button variant={'link'} onClick={logout}>
+              Logout
+            </Button>
           </div>
 
           <div className="space-y-8 py-8">
