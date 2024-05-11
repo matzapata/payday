@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import reportWebVitals from './reportWebVitals';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
-import { WageRequestScreen } from './screens/wage-request';
+import { CashoutScreen } from './screens/cashout';
 import { HomeScreen } from './screens/home';
 
 const root = ReactDOM.createRoot(
@@ -15,8 +15,8 @@ const router = createBrowserRouter([
     element: <HomeScreen />,
   },
   {
-    path: '/request',
-    element: <WageRequestScreen />,
+    path: '/cashout',
+    element: <CashoutScreen />,
   },
 ]);
 
