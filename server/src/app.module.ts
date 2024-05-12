@@ -4,6 +4,7 @@ import { UsersModule } from './users/users.module';
 import { ConfigModule } from '@nestjs/config';
 import * as Joi from 'joi';
 import { APP_PIPE } from '@nestjs/core';
+import { EarningsModule } from './earnings/earnings.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { APP_PIPE } from '@nestjs/core';
         DATABASE_URL: Joi.string().required(),
       }),
     }),
+    EarningsModule,
   ],
   controllers: [],
   providers: [

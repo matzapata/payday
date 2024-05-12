@@ -31,12 +31,22 @@ model User {
 }
 
 // =====================================
+// ============== Currency =============
+// =====================================
+
+enum Currency {
+  USD
+  ARS
+}
+
+// =====================================
 // ============== Earnings =============
 // =====================================
 
 model Earnings {
   id     String   @id @default(cuid())
   amount Float
+  currency Currency
 
   // timestamps
   createdAt DateTime @default(now())
@@ -61,6 +71,7 @@ model Cashout {
   id     String   @id @default(cuid())
   amount Float
   status CashoutStatus
+  currency Currency
 
   // timestamps
   createdAt DateTime @default(now())
