@@ -1,14 +1,24 @@
 import { serverService } from '@/services/server';
 import { AxiosInstance } from 'axios';
 
+export interface Cashout {
+  id: string;
+  amount: number;
+  status: string;
+  currency: string;
+  createdAt: Date;
+  updatedAt: Date;
+  userId: string;
+}
+
 export class CashoutsService {
   constructor(private readonly client: AxiosInstance) {}
 
-  async getAvailableBalance(accessToken: string): Promise<{ balance: number }> {
+  async getAvailableBalance(accessToken: string): Promise<number> {
     const res = await this.client.get('/cashouts/balance', {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
-    return res.data;
+    return res.data.balance;
   }
 
   async requestCashout(
@@ -24,11 +34,15 @@ export class CashoutsService {
     return res.data;
   }
 
-  async getHistory(accessToken: string): Promise<any> {
-    const res = await this.client.get('/cashouts/history', {
+  async getCashoutsHistory(accessToken: string): Promise<Cashout[]> {
+    const res = await this.client.get('/cashouts', {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
-    return res.data;
+    return res.data.cashouts.map((cashout: any) => ({
+      ...cashout,
+      createdAt: new Date(cashout.createdAt),
+      updatedAt: new Date(cashout.updatedAt),
+    }));
   }
 
   async getCurrencies(accessToken: string): Promise<any> {

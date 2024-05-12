@@ -14,7 +14,7 @@ export function AvailableBalance(props: { className?: string }) {
       if (!token) return;
 
       const balance = await cashoutsService.getAvailableBalance(token);
-      setBalance(balance.balance);
+      setBalance(balance);
       setLoading(false);
     }
 
