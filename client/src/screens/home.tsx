@@ -3,10 +3,12 @@ import { BrandLogo } from '@/components/brand/logo';
 import { AvailableBalance } from '@/components/cashouts/available-balance';
 import { TransactionsHistory } from '@/components/cashouts/transactions-history';
 import { Button } from '@/components/ui/button';
+import { useAvailableBalance } from '@/hooks/use-available-balance';
 import { Link } from 'react-router-dom';
 
 export function HomeScreen() {
   const { logout } = useAuth();
+  const availableBalance = useAvailableBalance();
 
   return (
     <div>
@@ -24,7 +26,10 @@ export function HomeScreen() {
             {/* Current balance */}
             <div className="space-y-1 text-center">
               <p className="font-medium">Your earned wages</p>
-              <AvailableBalance />
+              <AvailableBalance
+                balance={availableBalance.balance}
+                loading={availableBalance.loading}
+              />
             </div>
 
             <Link to="/cashout" className="block">

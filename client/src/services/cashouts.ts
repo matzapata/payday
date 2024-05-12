@@ -27,7 +27,7 @@ export class CashoutsService {
     currency: string,
   ): Promise<any> {
     const res = await this.client.post(
-      '/cashouts/request',
+      '/cashouts',
       { amount, currency },
       { headers: { Authorization: `Bearer ${accessToken}` } },
     );
@@ -45,11 +45,11 @@ export class CashoutsService {
     }));
   }
 
-  async getCurrencies(accessToken: string): Promise<any> {
+  async getCurrencies(accessToken: string): Promise<string[]> {
     const res = await this.client.get('/cashouts/currencies', {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
-    return res.data;
+    return res.data.currencies;
   }
 }
 
