@@ -8,9 +8,9 @@ export function ProtectedRoute({ screen }: { screen: React.ReactNode }) {
   if (!isAuthenticated) {
     return (
       <div className="bg-blue-100 flex justify-center items-center h-screen">
-        <div className="max-w-md text-center space-y-4">
+        <div className="max-w-md text-center space-y-10">
           <div className="space-y-1">
-            <BrandLogo />
+            <BrandLogo className="text-2xl" />
             <p>
               With $PayDay, every day is pay day.
               <br /> Signin and claim your wages

@@ -1,3 +1,5 @@
-export function BrandLogo() {
-  return <h1 className="font-bold">$ PayDay</h1>;
+import { cn } from '@/lib/utils';
+
+export function BrandLogo(props: { className?: string }) {
+  return <h1 className={cn('font-bold', props.className)}>$ PayDay</h1>;
 }
