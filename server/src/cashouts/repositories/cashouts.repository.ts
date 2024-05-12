@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { Cashout, Prisma } from '@prisma/client';
-import { PrismaService } from '@src/database/prisma.service';
+import { Cashout, Currency, Prisma, PrismaClient } from '@prisma/client';
+import { PrismaService, PrismaTxClient } from '@src/database/prisma.service';
 
 @Injectable()
 export class CashoutsRepository {
@@ -9,16 +9,19 @@ export class CashoutsRepository {
   createForUserId(
     userId: string,
     data: Prisma.CashoutCreateInput,
+    condition: (prisma: PrismaTxClient) => Promise<boolean>,
   ): Promise<Cashout> {
-    return this.prisma.cashout.create({
-      data: {
-        ...data,
-        user: {
-          connect: {
-            id: userId,
-          },
+    return this.prisma.$transaction(async (txClient) => {
+      if (!(await condition(txClient))) {
+        throw new Error('Condition failed');
+      }
+
+      return txClient.cashout.create({
+        data: {
+          ...data,
+          user: { connect: { id: userId } },
         },
-      },
+      });
     });
   }
 
@@ -30,13 +33,35 @@ export class CashoutsRepository {
     });
   }
 
+  // This method is used by the non-transactional method
   sumByUserId(
     userId: string,
+    currency: Currency,
     where?: Prisma.CashoutAggregateArgs['where'],
   ): Promise<number> {
-    return this.prisma.cashout
+    return this.sumByUserIdClient(this.prisma, userId, currency, where);
+  }
+
+  // This method is used by the transactional method
+  sumByUserIdInTx(
+    txClient: PrismaTxClient,
+    userId: string,
+    currency: Currency,
+    where?: Prisma.CashoutAggregateArgs['where'],
+  ): Promise<number> {
+    return this.sumByUserIdClient(txClient, userId, currency, where);
+  }
+
+  // This method is used by both the transactional and non-transactional methods
+  sumByUserIdClient(
+    prismaClient: PrismaTxClient | PrismaClient,
+    userId: string,
+    currency: Currency,
+    where?: Prisma.CashoutAggregateArgs['where'],
+  ): Promise<number> {
+    return prismaClient.cashout
       .aggregate({
-        where: { userId, ...where },
+        where: { userId, currency, ...where },
         _sum: {
           amount: true,
         },

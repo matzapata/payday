@@ -8,6 +8,12 @@
 
 `npx prisma db push` Only for dev
 
+## TODO:
+
+- Connect back in front
+- Limit decimals in amount input, maybe do string instead?
+- Better communicate not enough funds
+
 ## Specifications
 
 Api endpoints

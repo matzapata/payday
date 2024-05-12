@@ -1,15 +1,23 @@
-import { Controller, Get, Post, UseGuards } from '@nestjs/common';
-import { EarningsService } from '@src/earnings/services/earnings.service';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { CurrentUser } from '@src/users/decorators/current-user.decorator';
 import { AuthGuard } from '@src/users/guards/auth.guard';
 import { AuthUser } from '@src/users/middlewares/current-user.middleware';
 import { CashoutsService } from './services/cashouts.service';
 import { ExchangeService } from '@src/infrastructure/exchange/exchange.service';
+import { CreateCashoutDto } from './dto/create-cashout.dto';
+import { CashoutStatus, Currency } from '@prisma/client';
+import { PrismaTxClient } from '@src/database/prisma.service';
 
 @Controller('cashouts')
 export class CashoutsController {
   constructor(
-    private readonly earningsService: EarningsService,
     private readonly cashoutsService: CashoutsService,
     private readonly exchangeService: ExchangeService,
   ) {}
@@ -23,20 +31,61 @@ export class CashoutsController {
 
   @Post()
   @UseGuards(AuthGuard)
-  createCashout(@CurrentUser() user: AuthUser) {
-    return { user: user };
+  async createCashout(
+    @CurrentUser() user: AuthUser,
+    @Body() body: CreateCashoutDto,
+  ) {
+    // check currency is supported
+    const currencies = await this.exchangeService.getSupportedCurrencies();
+    if (!currencies.includes(body.currency as Currency)) {
+      throw new Error(`Currency ${body.currency} is not supported`);
+    }
+    const targetCurrency = body.currency as Currency;
+
+    // begin transaction
+    const cashout = await this.cashoutsService
+      .createForUserId(
+        user.id,
+        {
+          amount: body.amount,
+          currency: targetCurrency,
+          user: { connect: { id: user.id } },
+          status: CashoutStatus.PENDING,
+        },
+        async (txClient: PrismaTxClient) => {
+          // for each currency, sum earnings and convert, sum cashouts and convert, then convert to target currency
+          const availableForCashout =
+            await this.cashoutsService.calculateAvailableForCashoutInTx(
+              txClient,
+              user.id,
+              targetCurrency,
+              currencies,
+            );
+
+          return availableForCashout >= body.amount;
+        },
+      )
+      .catch(() => {
+        // TODO: Better catch error
+        throw new BadRequestException('Failed to create cashout');
+      });
+
+    return { cashout: cashout };
   }
 
   @Get('balance')
   @UseGuards(AuthGuard)
   async getBalance(@CurrentUser() user: AuthUser) {
-    // fetch earnings and cashouts for the user. Balance is earnings - cashouts (success or pending)
-    const [earnings, cashouts] = await Promise.all([
-      this.earningsService.sumByUserId(user.id),
-      this.cashoutsService.sumByUserIdSuccessOrPending(user.id),
-    ]);
+    const currencies = await this.exchangeService.getSupportedCurrencies();
+    const targetCurrency = Currency.USD;
 
-    return { balance: earnings - cashouts };
+    const balance = await this.cashoutsService.calculateAvailableForCashout(
+      user.id,
+      targetCurrency,
+      currencies,
+    );
+
+    return { balance: balance };
   }
 
   @Get('currencies')

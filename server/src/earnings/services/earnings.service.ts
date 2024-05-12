@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { EarningsRepository } from '../repositories/earnings.repository';
-import { Earnings, Prisma } from '@prisma/client';
+import { Currency, Earnings, Prisma } from '@prisma/client';
+import { PrismaTxClient } from '@src/database/prisma.service';
 
 @Injectable()
 export class EarningsService {
@@ -8,7 +9,7 @@ export class EarningsService {
 
   createForUserId(
     userId: string,
-    data: Prisma.EarningsCreateInput,
+    data: Omit<Prisma.EarningsCreateInput, 'user'>,
   ): Promise<Earnings> {
     return this.earningsRepo.createForUserId(userId, data);
   }
@@ -17,7 +18,15 @@ export class EarningsService {
     return this.earningsRepo.findByUserId(userId);
   }
 
-  sumByUserId(userId: string): Promise<number> {
-    return this.earningsRepo.sumByUserId(userId);
+  sumByUserId(userId: string, currency: Currency): Promise<number> {
+    return this.earningsRepo.sumByUserId(userId, currency);
+  }
+
+  sumByUserIdInTx(
+    txClient: PrismaTxClient,
+    userId: string,
+    currency: Currency,
+  ): Promise<number> {
+    return this.earningsRepo.sumByUserIdInTx(txClient, userId, currency);
   }
 }

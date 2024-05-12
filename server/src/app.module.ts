@@ -25,6 +25,7 @@ import { EarningsModule } from './earnings/earnings.module';
 
         // auth
         AUTH_JWKS_URI: Joi.string().required(),
+        ADMIN_SECRET: Joi.string().required(),
 
         // database
         DATABASE_URL: Joi.string().required(),
