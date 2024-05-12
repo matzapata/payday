@@ -2,13 +2,20 @@
 
 # Wage Access Platform
 
+## Instructions
+
+`docker compose up --build`
+
+`npx prisma db push` Only for dev
+
+## Specifications
 
 Api endpoints
 
-- GET /api/cashout/balance -> available balance for cashout
+- GET /api/cashout/balance -> available balance for cashout. Calculated from the sum of Earnings minus the sum of successful cashouts
 - GET /api/cashout/currencies -> available currencies to cashout
 - GET /api/cashout/history -> transactions history
-- POST /api/cashout -> Creates a cashout order
+- POST /api/cashout -> Creates a cashout order using an sql transaction
 
 Database schema
 

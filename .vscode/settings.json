@@ -6,4 +6,7 @@
         "./client",
         "./server",
     ],
+    "cSpell.words": [
+        "Cashouts"
+    ],
 }

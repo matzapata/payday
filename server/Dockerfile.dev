@@ -5,6 +5,8 @@ WORKDIR /app
 COPY package.json .
 COPY package-lock.json .
 
+COPY ./src/database/schema.prisma ./src/database/schema.prisma
+
 RUN npm install
 
 COPY . .
